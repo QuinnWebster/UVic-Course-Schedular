@@ -95,11 +95,7 @@ export default function SearchForm({ onResult, onLoading }: SearchFormProps) {
     >
       <TermBadge label={TERMS[0].label} />
 
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        alignItems="flex-end"
-      >
+      <Stack direction={{ xs: "column", sm: "row" }}>
         {/* Subject */}
         <FormControl size="small" sx={{ minWidth: 140 }}>
           <InputLabel sx={{ color: "text.disabled" }}>Subject</InputLabel>
@@ -119,20 +115,6 @@ export default function SearchForm({ onResult, onLoading }: SearchFormProps) {
                 borderColor: "rgba(125,211,252,0.5)",
               },
               ".MuiSvgIcon-root": { color: "text.disabled" },
-            }}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  background: "#0f172a",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  "& .MuiMenuItem-root:hover": {
-                    background: "rgba(125,211,252,0.08)",
-                  },
-                  "& .MuiMenuItem-root.Mui-selected": {
-                    background: "rgba(125,211,252,0.12)",
-                  },
-                },
-              },
             }}
           >
             {SUBJECTS.map((s) => (

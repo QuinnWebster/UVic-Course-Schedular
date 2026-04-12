@@ -11,7 +11,7 @@ export default function CourseSearchPage() {
   return (
     <Box sx={{ minHeight: "100vh", py: { xs: 6, sm: 10 } }}>
       <Container maxWidth="md">
-        <Box textAlign="center" mb={7}>
+        <Box>
           <Box
             sx={{
               display: "inline-block",
@@ -56,7 +56,7 @@ export default function CourseSearchPage() {
           </Typography>
         </Box>
 
-        <Box mb={5}>
+        <Box>
           <SearchForm onResult={setResult} onLoading={setLoading} />
         </Box>
 

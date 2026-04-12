@@ -7,9 +7,29 @@ export interface Schedule {
   building: string;
 }
 
+export interface MeetingTime {
+  beginTime?: string;
+  endTime?: string;
+  monday?: boolean;
+  tuesday?: boolean;
+  wednesday?: boolean;
+  thursday?: boolean;
+  friday?: boolean;
+  saturday?: boolean;
+  sunday?: boolean;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface MeetingFaculty {
+  meetingTime?: MeetingTime;
+}
+
 export interface Section {
   crn: string;
   section: string;
+  sequenceNumber: string;
+  linkIdentifier?: string;
   title: string;
   subject: string;
   courseNumber: string;
@@ -27,6 +47,8 @@ export interface Section {
   waitAvailable: number;
   instructors: string[];
   schedule: Schedule[];
+  // Raw meeting data used by conflict checker
+  meetingsFaculty: MeetingFaculty[];
 }
 
 export interface CourseResponse {
