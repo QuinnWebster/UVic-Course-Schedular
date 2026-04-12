@@ -1,67 +1,45 @@
 import { useState } from "react";
-import { Box, Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
+
 import SearchForm from "../components/SearchFormOuter";
 import SectionList from "../components/SectionList";
 import type { CourseResponse } from "../types/courseTypes";
+
+import {
+  PageWrapper,
+  Header,
+  Badge,
+  Title,
+  Highlight,
+  Subtitle,
+  FormWrapper,
+} from "./CourseSearchPage.style";
 
 export default function CourseSearchPage() {
   const [result, setResult] = useState<CourseResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
   return (
-    <Box sx={{ minHeight: "100vh", py: { xs: 6, sm: 10 } }}>
+    <PageWrapper>
       <Container maxWidth="md">
-        <Box>
-          <Box
-            sx={{
-              display: "inline-block",
-              fontFamily: "'Space Mono', monospace",
-              fontSize: 11,
-              letterSpacing: 3,
-              color: "#7dd3fc",
-              textTransform: "uppercase",
-              mb: 2,
-              px: 2,
-              py: 0.5,
-              border: "1px solid rgba(125,211,252,0.2)",
-              borderRadius: 20,
-            }}
-          >
-            University of Victoria
-          </Box>
-          <Typography
-            variant="h1"
-            sx={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: { xs: 38, sm: 56 },
-              lineHeight: 1.1,
-              color: "text.primary",
-              mb: 1.5,
-            }}
-          >
-            Course{" "}
-            <Box
-              component="span"
-              sx={{ fontStyle: "italic", color: "#7dd3fc" }}
-            >
-              Availability
-            </Box>
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.disabled"
-            sx={{ maxWidth: 380, mx: "auto" }}
-          >
-            Live seat counts and schedules pulled directly from Banner.
-          </Typography>
-        </Box>
+        <Header>
+          <Badge>University of Victoria</Badge>
 
-        <Box>
+          <Title variant="h1">
+            Course <Highlight>Availability</Highlight>
+          </Title>
+
+          <Subtitle variant="body1">
+            Live seat counts and schedules pulled directly from Banner.
+          </Subtitle>
+        </Header>
+
+        <FormWrapper>
           <SearchForm onResult={setResult} onLoading={setLoading} />
-        </Box>
+        </FormWrapper>
 
         {!loading && result && <SectionList result={result} />}
       </Container>
-    </Box>
+    </PageWrapper>
   );
 }

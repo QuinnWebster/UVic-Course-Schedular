@@ -1,22 +1,23 @@
 import { useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { CircularProgress, InputLabel, MenuItem, Stack } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+
+import {
+  Container,
+  TermChip,
+  SectionLabel,
+  IndexText,
+  StyledFormControl,
+  StyledSelect,
+  StyledTextField,
+  RemoveButton,
+  AddButton,
+  ErrorAlert,
+  SubmitButton,
+} from "./CourseSelector.style";
+
 import type { CourseInput, LoadedCourse } from "../types/schedule";
 import { fetchCourses } from "../api/courses";
 
@@ -119,182 +120,77 @@ export default function CourseSelector({ onResults }: CourseSelectorProps) {
   };
 
   return (
-    <Box
-      sx={{
-        background: "rgba(15,23,42,0.8)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 4,
-        p: { xs: 3, sm: 4 },
-        backdropFilter: "blur(20px)",
-      }}
-    >
-      {/* Term badge */}
-      <Box>
-        <Chip
-          label="☀️  Summer 2026 (May – Aug)"
-          variant="outlined"
-          sx={{
-            color: "#7dd3fc",
-            borderColor: "rgba(125,211,252,0.3)",
-            background: "rgba(125,211,252,0.06)",
-            fontSize: 13,
-          }}
-        />
-      </Box>
+    <Container>
+      <div>
+        <TermChip label="☀️  Summer 2026 (May – Aug)" variant="outlined" />
+      </div>
 
-      <Typography
-        variant="overline"
-        sx={{ color: "text.disabled", letterSpacing: 1.5, fontSize: 10 }}
-      >
-        Courses
-      </Typography>
+      <SectionLabel variant="overline">Courses</SectionLabel>
 
       <Stack>
         {inputs.map((input, idx) => (
           <Stack key={input.id} direction="row">
-            {/* Index label */}
-            <Typography
-              sx={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: 11,
-                color: "text.disabled",
-                minWidth: 20,
-                textAlign: "right",
-              }}
-            >
-              {idx + 1}
-            </Typography>
+            <IndexText>{idx + 1}</IndexText>
 
-            {/* Subject */}
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel sx={{ color: "text.disabled" }}>Subject</InputLabel>
-              <Select
+            <StyledFormControl size="small">
+              <InputLabel>Subject</InputLabel>
+
+              <StyledSelect
                 value={input.subject}
                 label="Subject"
-                onChange={(e) => updateRow(input.id, "subject", e.target.value)}
-                sx={{
-                  color: "text.primary",
-                  ".MuiOutlinedInput-notchedOutline": {
-                    borderColor: "rgba(255,255,255,0.1)",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "rgba(255,255,255,0.2)",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "rgba(125,211,252,0.5)",
-                  },
-                  ".MuiSvgIcon-root": { color: "text.disabled" },
-                }}
+                onChange={(e) =>
+                  updateRow(input.id, "subject", e.target.value as string)
+                }
               >
                 {SUBJECTS.map((s) => (
-                  <MenuItem
-                    key={s}
-                    value={s}
-                    sx={{ fontFamily: "'Space Mono', monospace", fontSize: 13 }}
-                  >
+                  <MenuItem key={s} value={s}>
                     {s}
                   </MenuItem>
                 ))}
-              </Select>
-            </FormControl>
+              </StyledSelect>
+            </StyledFormControl>
 
-            {/* Course number */}
-            <TextField
+            <StyledTextField
               size="small"
               label="Number"
               placeholder="e.g. 225"
               value={input.courseNumber}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 updateRow(input.id, "courseNumber", e.target.value)
               }
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              sx={{
-                flex: 1,
-                "& label": { color: "text.disabled" },
-                "& label.Mui-focused": { color: "#7dd3fc" },
-                "& .MuiInputBase-input": { color: "text.primary" },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "rgba(255,255,255,0.1)",
-                },
-                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
-                  { borderColor: "rgba(255,255,255,0.2)" },
-                "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-                  { borderColor: "rgba(125,211,252,0.5)" },
-              }}
+              onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) =>
+                e.key === "Enter" && handleSearch()
+              }
             />
 
-            {/* Remove button */}
-            <IconButton
+            <RemoveButton
               size="small"
               onClick={() => removeRow(input.id)}
               disabled={inputs.length === 1}
-              sx={{ color: "text.disabled", "&:hover": { color: "#ef4444" } }}
             >
               <DeleteOutlineRoundedIcon fontSize="small" />
-            </IconButton>
+            </RemoveButton>
           </Stack>
         ))}
       </Stack>
 
-      {/* Add course */}
-      <Button
-        size="small"
-        startIcon={<AddRoundedIcon />}
-        onClick={addRow}
-        sx={{
-          color: "#7dd3fc",
-          textTransform: "none",
-          fontSize: 13,
-          mb: 3,
-          "&:hover": { background: "rgba(125,211,252,0.06)" },
-        }}
-      >
+      <AddButton size="small" startIcon={<AddRoundedIcon />} onClick={addRow}>
         Add another course
-      </Button>
+      </AddButton>
 
-      {error && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            background: "rgba(239,68,68,0.08)",
-            border: "1px solid rgba(239,68,68,0.2)",
-            color: "#fca5a5",
-            "& .MuiAlert-icon": { color: "#ef4444" },
-          }}
-        >
-          {error}
-        </Alert>
-      )}
+      {error && <ErrorAlert severity="error">{error}</ErrorAlert>}
 
-      <Button
+      <SubmitButton
         variant="contained"
         fullWidth
         onClick={handleSearch}
         disabled={loading}
         startIcon={
-          loading ? (
-            <CircularProgress size={16} sx={{ color: "inherit" }} />
-          ) : (
-            <SearchRoundedIcon />
-          )
+          loading ? <CircularProgress size={16} /> : <SearchRoundedIcon />
         }
-        sx={{
-          background: "#0284c7",
-          py: 1.2,
-          borderRadius: 2,
-          textTransform: "none",
-          fontSize: 14,
-          fontWeight: 500,
-          "&:hover": { background: "#0ea5e9" },
-          "&:disabled": {
-            background: "rgba(255,255,255,0.08)",
-            color: "text.disabled",
-          },
-        }}
       >
         {loading ? "Fetching sections…" : "Find Combinations"}
-      </Button>
-    </Box>
+      </SubmitButton>
+    </Container>
   );
 }

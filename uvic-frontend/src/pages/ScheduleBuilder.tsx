@@ -1,9 +1,22 @@
 import { useState } from "react";
-import { Alert, Box, Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
+
 import CourseSelector from "../components/CourseSelector";
 import CombinationList from "../components/CombinationList";
+
 import type { Combination, LoadedCourse } from "../types/schedule";
 import { generateCombinations } from "../utils/conflictChecker";
+
+import {
+  PageWrapper,
+  Hero,
+  Badge,
+  Title,
+  Highlight,
+  Subtitle,
+  SelectorWrapper,
+  WarningAlert,
+} from "./ScheduleBuilder.style";
 
 export default function ScheduleBuilder() {
   const [combinations, setCombinations] = useState<Combination[] | null>(null);
@@ -15,12 +28,15 @@ export default function ScheduleBuilder() {
       .filter((l) => l.error || l.sections.length === 0)
       .map(
         (l) =>
-          `${l.input.subject} ${l.input.courseNumber}: ${l.error ?? "no sections found"}`,
+          `${l.input.subject} ${l.input.courseNumber}: ${
+            l.error ?? "no sections found"
+          }`,
       );
 
     setLoadErrors(errors);
 
     const valid = loaded.filter((l) => !l.error && l.sections.length > 0);
+
     if (valid.length < 2) {
       setCombinations([]);
       setCourseLabels([]);
@@ -38,75 +54,32 @@ export default function ScheduleBuilder() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", py: { xs: 6, sm: 10 } }}>
+    <PageWrapper>
       <Container maxWidth="lg">
         {/* Hero */}
-        <Box>
-          <Box
-            sx={{
-              display: "inline-block",
-              fontFamily: "'Space Mono', monospace",
-              fontSize: 11,
-              letterSpacing: 3,
-              color: "#7dd3fc",
-              textTransform: "uppercase",
-              mb: 2,
-              px: 2,
-              py: 0.5,
-              border: "1px solid rgba(125,211,252,0.2)",
-              borderRadius: 20,
-            }}
-          >
-            University of Victoria
-          </Box>
-          <Typography
-            variant="h1"
-            sx={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: { xs: 38, sm: 56 },
-              lineHeight: 1.1,
-              color: "text.primary",
-              mb: 1.5,
-            }}
-          >
-            Schedule{" "}
-            <Box
-              component="span"
-              sx={{ fontStyle: "italic", color: "#7dd3fc" }}
-            >
-              Builder
-            </Box>
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.disabled"
-            sx={{ maxWidth: 420, mx: "auto" }}
-          >
+        <Hero>
+          <Badge>University of Victoria</Badge>
+
+          <Title>
+            Schedule <Highlight>Builder</Highlight>
+          </Title>
+
+          <Subtitle>
             Add your courses and we'll find every conflict-free combination,
             visualized on a weekly calendar.
-          </Typography>
-        </Box>
+          </Subtitle>
+        </Hero>
 
         {/* Selector */}
-        <Box>
+        <SelectorWrapper>
           <CourseSelector onResults={handleResults} />
-        </Box>
+        </SelectorWrapper>
 
-        {/* Load errors */}
+        {/* Errors */}
         {loadErrors.map((e) => (
-          <Alert
-            key={e}
-            severity="warning"
-            sx={{
-              mb: 2,
-              background: "rgba(245,158,11,0.08)",
-              border: "1px solid rgba(245,158,11,0.2)",
-              color: "#fcd34d",
-              "& .MuiAlert-icon": { color: "#f59e0b" },
-            }}
-          >
+          <WarningAlert key={e} severity="warning">
             {e}
-          </Alert>
+          </WarningAlert>
         ))}
 
         {/* Results */}
@@ -117,6 +90,6 @@ export default function ScheduleBuilder() {
           />
         )}
       </Container>
-    </Box>
+    </PageWrapper>
   );
 }
