@@ -114,26 +114,49 @@ def parse_section(s: dict) -> dict:
     faculty = s.get("faculty") or []
     instructors = [f["displayName"] for f in faculty if f.get("displayName")] or ["TBA"]
 
+    # Pass through raw meetingsFaculty for conflict detection on the frontend
+    raw_meetings = []
+    for m in (s.get("meetingsFaculty") or []):
+        mt = m.get("meetingTime") or {}
+        raw_meetings.append({
+            "meetingTime": {
+                "beginTime":   mt.get("beginTime"),
+                "endTime":     mt.get("endTime"),
+                "monday":      mt.get("monday", False),
+                "tuesday":     mt.get("tuesday", False),
+                "wednesday":   mt.get("wednesday", False),
+                "thursday":    mt.get("thursday", False),
+                "friday":      mt.get("friday", False),
+                "saturday":    mt.get("saturday", False),
+                "sunday":      mt.get("sunday", False),
+                "startDate":   mt.get("startDate"),
+                "endDate":     mt.get("endDate"),
+            }
+        })
+
     return {
-        "crn":           s.get("courseReferenceNumber"),
-        "section":       s.get("sequenceNumber"),
-        "title":         s.get("courseTitle"),
-        "subject":       s.get("subject"),
-        "courseNumber":  s.get("courseNumber"),
-        "term":          s.get("termDesc"),
-        "format":        s.get("instructionalMethodDescription"),
-        "scheduleType":  s.get("scheduleTypeDescription"),
-        "campus":        s.get("campusDescription"),
-        "credits":       s.get("creditHourHigh"),
-        "isOpen":        s.get("openSection", False),
-        "enrollment":    s.get("enrollment", 0),
-        "maxEnrollment": s.get("maximumEnrollment", 0),
-        "seatsAvailable": s.get("seatsAvailable", 0),
-        "waitCount":     s.get("waitCount", 0),
-        "waitCapacity":  s.get("waitCapacity", 0),
-        "waitAvailable": s.get("waitAvailable", 0),
-        "instructors":   instructors,
-        "schedule":      schedule,
+        "crn":             s.get("courseReferenceNumber"),
+        "section":         s.get("sequenceNumber"),
+        "sequenceNumber":  s.get("sequenceNumber"),
+        "linkIdentifier":  s.get("linkIdentifier"),
+        "title":           s.get("courseTitle"),
+        "subject":         s.get("subject"),
+        "courseNumber":    s.get("courseNumber"),
+        "term":            s.get("termDesc"),
+        "format":          s.get("instructionalMethodDescription"),
+        "scheduleType":    s.get("scheduleTypeDescription"),
+        "campus":          s.get("campusDescription"),
+        "credits":         s.get("creditHourHigh"),
+        "isOpen":          s.get("openSection", False),
+        "enrollment":      s.get("enrollment", 0),
+        "maxEnrollment":   s.get("maximumEnrollment", 0),
+        "seatsAvailable":  s.get("seatsAvailable", 0),
+        "waitCount":       s.get("waitCount", 0),
+        "waitCapacity":    s.get("waitCapacity", 0),
+        "waitAvailable":   s.get("waitAvailable", 0),
+        "instructors":     instructors,
+        "schedule":        schedule,
+        "meetingsFaculty": raw_meetings,
     }
 
 
@@ -154,13 +177,13 @@ def get_courses():
     if not raw.get("success"):
         return jsonify({"error": "Banner returned an unsuccessful response"}), 502
 
-    sections = [parse_section(s) for s in (raw.get("data") or [])]
+    sections = [parse_section(s) for s in (raw.get("data") or []) if s.get("sequenceNumber", "").startswith("A")]
 
     return jsonify({
         "subject":      subject,
         "courseNumber": course_number,
         "term":         term,
-        "totalCount":   raw.get("totalCount", 0),
+        "totalCount":   len(sections),
         "sections":     sections,
     })
 
