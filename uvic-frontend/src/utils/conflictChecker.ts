@@ -72,33 +72,60 @@ function sectionsConflict(a: Section, b: Section): boolean {
 // }
 
 let comboCounter = 0;
+export function buildCourseBundles(sections: Section[]): Section[][] {
+  const lectures = sections.filter((s) => s.scheduleType === "Lecture");
+  const components = sections.filter((s) => s.scheduleType !== "Lecture");
+
+  const bundles: Section[][] = [];
+
+  for (const lec of lectures) {
+    const relatedComponents = components.filter(
+      (c) => c.subject === lec.subject && c.courseNumber === lec.courseNumber,
+    );
+
+    if (relatedComponents.length === 0) {
+      bundles.push([lec]);
+      continue;
+    }
+
+    for (const comp of relatedComponents) {
+      bundles.push([lec, comp]);
+    }
+  }
+
+  return bundles;
+}
 
 export function generateCombinations(
-  courseSectionGroups: Section[][],
+  courseBundles: Section[][][],
 ): Combination[] {
-  // Each element of courseSectionGroups is the full section list for one course.
-  // We pick one section from each course and check for conflicts.
   const results: Combination[] = [];
 
-  function recurse(courseIdx: number, chosen: Section[]) {
-    if (courseIdx === courseSectionGroups.length) {
-      // Check all pairs for conflicts
+  function recurse(courseIdx: number, chosen: Section[][]) {
+    if (courseIdx === courseBundles.length) {
+      // flatten bundles → sections for conflict checking
+      const flatSections = chosen.flat();
+
       let conflict = false;
-      for (let i = 0; i < chosen.length && !conflict; i++) {
-        for (let j = i + 1; j < chosen.length && !conflict; j++) {
-          if (sectionsConflict(chosen[i], chosen[j])) conflict = true;
+      for (let i = 0; i < flatSections.length && !conflict; i++) {
+        for (let j = i + 1; j < flatSections.length && !conflict; j++) {
+          if (sectionsConflict(flatSections[i], flatSections[j])) {
+            conflict = true;
+          }
         }
       }
+
       results.push({
         id: `combo-${comboCounter++}`,
-        sections: [...chosen],
+        sections: flatSections,
         hasConflict: conflict,
       });
+
       return;
     }
 
-    for (const section of courseSectionGroups[courseIdx]) {
-      chosen.push(section);
+    for (const bundle of courseBundles[courseIdx]) {
+      chosen.push(bundle);
       recurse(courseIdx + 1, chosen);
       chosen.pop();
     }

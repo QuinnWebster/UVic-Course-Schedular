@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-app.py — UVic Course Availability API
-Run: pip install flask flask-cors requests
-     python app.py
-"""
-
 import time
 import requests
 from flask import Flask, jsonify, request
@@ -15,12 +8,14 @@ CORS(app)
 
 BASE_URL = "https://banner.uvic.ca/StudentRegistrationSsb/ssb"
 
+# Make it look like a real request
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept-Language": "en-US,en;q=0.9",
 }
 
 
+# Takes course info and returns JSON
 def fetch_sections(subject: str, course_number: str, term: str):
     session = requests.Session()
     session.headers.update(HEADERS)
@@ -162,12 +157,12 @@ def parse_section(s: dict) -> dict:
 
 @app.route("/api/courses", methods=["GET"])
 def get_courses():
-    subject       = request.args.get("subject", "").upper().strip()
+    subject = request.args.get("subject", "").upper().strip()
     course_number = request.args.get("courseNumber", "").strip()
-    term          = request.args.get("term", "202605").strip()
+    term = request.args.get("term", "").strip()
 
-    if not subject or not course_number:
-        return jsonify({"error": "subject and courseNumber are required"}), 400
+    if not subject or not course_number or not term:
+        return jsonify({"error": "subject, courseNumber, and term are required"}), 400
 
     try:
         raw = fetch_sections(subject, course_number, term)
@@ -177,8 +172,9 @@ def get_courses():
     if not raw.get("success"):
         return jsonify({"error": "Banner returned an unsuccessful response"}), 502
 
-    sections = [parse_section(s) for s in (raw.get("data") or []) if s.get("sequenceNumber", "").startswith("A")]
+    sections = [parse_section(s) for s in (raw.get("data") or [])]
 
+    print("the data is", sections)
     return jsonify({
         "subject":      subject,
         "courseNumber": course_number,

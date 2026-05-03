@@ -23,30 +23,29 @@ function formatTime(minutes: number): string {
 interface WeekCalendarProps {
   blocks: CalendarBlock[];
 }
-
 export default function WeekCalendar({ blocks }: WeekCalendarProps) {
-  const TIME_COL_WIDTH = 52;
-  const DAY_COL_MIN = 80;
+  const TIME_COL_WIDTH = 56;
+  const DAY_COL_MIN = 90;
 
   return (
     <Box
       sx={{
-        background: "rgba(15,23,42,0.7)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 3,
+        backgroundColor: "#fff",
+        borderRadius: 2,
+        border: "1px solid #e5e7eb",
         overflow: "hidden",
       }}
     >
-      {/* Day headers */}
+      {/* Header */}
       <Box
         sx={{
           display: "flex",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(0,0,0,0.2)",
+          borderBottom: "1px solid #f1f5f9",
+          backgroundColor: "#fafafa",
         }}
       >
-        {/* Time gutter header */}
-        <Box sx={{ minWidth: TIME_COL_WIDTH, flexShrink: 0 }} />
+        <Box sx={{ minWidth: TIME_COL_WIDTH }} />
+
         {DAYS.map((day) => (
           <Box
             key={day}
@@ -55,17 +54,13 @@ export default function WeekCalendar({ blocks }: WeekCalendarProps) {
               minWidth: DAY_COL_MIN,
               textAlign: "center",
               py: 1.5,
-              borderLeft: "1px solid rgba(255,255,255,0.04)",
             }}
           >
             <Typography
-              variant="caption"
               sx={{
-                fontFamily: "'Space Mono', monospace",
-                color: "text.disabled",
-                fontSize: 11,
-                letterSpacing: 1,
-                textTransform: "uppercase",
+                fontSize: 13,
+                fontWeight: 500,
+                color: "text.secondary",
               }}
             >
               {day}
@@ -74,44 +69,37 @@ export default function WeekCalendar({ blocks }: WeekCalendarProps) {
         ))}
       </Box>
 
-      {/* Grid body */}
-      <Box sx={{ display: "flex", overflowX: "auto" }}>
-        {/* Time labels column */}
+      {/* Body */}
+      <Box sx={{ display: "flex" }}>
+        {/* Time column */}
         <Box
           sx={{
             minWidth: TIME_COL_WIDTH,
-            flexShrink: 0,
             position: "relative",
             height: TOTAL_HEIGHT,
+            borderRight: "1px solid #f1f5f9",
           }}
         >
           {Array.from({ length: END_HOUR - START_HOUR }, (_, i) => (
-            <Box
+            <Typography
               key={i}
               sx={{
                 position: "absolute",
-                top: i * HOUR_HEIGHT - 7,
+                top: i * HOUR_HEIGHT - 6,
                 right: 8,
-                width: "100%",
+                fontSize: 11,
+                color: "text.secondary",
               }}
             >
-              <Typography
-                variant="caption"
-                sx={{
-                  fontSize: 9,
-                  color: "text.disabled",
-                  fontFamily: "'Space Mono', monospace",
-                }}
-              >
-                {formatTime((START_HOUR + i) * 60)}
-              </Typography>
-            </Box>
+              {formatTime((START_HOUR + i) * 60)}
+            </Typography>
           ))}
         </Box>
 
-        {/* Day columns */}
+        {/* Days */}
         {DAYS.map((day, dayIdx) => {
           const dayBlocks = blocks.filter((b) => b.day === dayIdx);
+
           return (
             <Box
               key={day}
@@ -120,7 +108,7 @@ export default function WeekCalendar({ blocks }: WeekCalendarProps) {
                 minWidth: DAY_COL_MIN,
                 position: "relative",
                 height: TOTAL_HEIGHT,
-                borderLeft: "1px solid rgba(255,255,255,0.04)",
+                borderRight: "1px solid #f8fafc",
               }}
             >
               {/* Hour lines */}
@@ -132,66 +120,62 @@ export default function WeekCalendar({ blocks }: WeekCalendarProps) {
                     top: i * HOUR_HEIGHT,
                     left: 0,
                     right: 0,
-                    borderTop: "1px solid rgba(255,255,255,0.04)",
+                    borderTop: "1px solid #f1f5f9",
                   }}
                 />
               ))}
 
-              {/* Course blocks */}
+              {/* Events */}
               {dayBlocks.map((block, bi) => {
                 const top = minutesToPx(block.startMinutes);
                 const height = minutesToPx(block.endMinutes) - top;
+
                 return (
                   <Box
                     key={bi}
                     sx={{
                       position: "absolute",
-                      left: 3,
-                      right: 3,
                       top,
-                      height: Math.max(height, 24),
-                      background: block.color,
-                      opacity: 0.88,
+                      left: 4,
+                      right: 4,
+                      height: Math.max(height, 28),
                       borderRadius: 1.5,
                       px: 1,
                       py: 0.5,
+                      backgroundColor: block.color + "22",
+                      border: `1px solid ${block.color}55`,
                       overflow: "hidden",
-                      boxShadow: `0 2px 8px ${block.color}44`,
-                      cursor: "default",
-                      transition: "opacity 0.15s",
-                      "&:hover": { opacity: 1 },
                     }}
                   >
                     <Typography
                       sx={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: "#fff",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "text.primary",
                         lineHeight: 1.2,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
                       }}
+                      noWrap
                     >
                       {block.section.subject} {block.section.courseNumber}
                     </Typography>
-                    {height > 30 && (
+
+                    {height > 36 && (
                       <Typography
                         sx={{
-                          fontSize: 9,
-                          color: "rgba(255,255,255,0.8)",
+                          fontSize: 10,
+                          color: "text.secondary",
                           lineHeight: 1.2,
                         }}
                       >
                         {block.section.sequenceNumber}
                       </Typography>
                     )}
-                    {height > 44 && (
+
+                    {height > 52 && (
                       <Typography
                         sx={{
-                          fontSize: 9,
-                          color: "rgba(255,255,255,0.7)",
-                          lineHeight: 1.2,
+                          fontSize: 10,
+                          color: "text.secondary",
                         }}
                       >
                         {formatTime(block.startMinutes)}–

@@ -10,7 +10,7 @@ export interface CourseInput {
 // A fetched course with all its sections loaded
 export interface LoadedCourse {
   input: CourseInput;
-  sections: Section[];
+  bundles: Section[][];
   error?: string;
 }
 

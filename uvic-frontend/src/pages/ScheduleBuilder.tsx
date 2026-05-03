@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, Box, Container, Typography } from "@mui/material";
+import { Alert, Box, Typography } from "@mui/material";
 import CourseSelector from "../components/CourseSelector";
 import CombinationList from "../components/CombinationList";
 import type { Combination, LoadedCourse } from "../types/schedule";
@@ -12,15 +12,18 @@ export default function ScheduleBuilder() {
 
   const handleResults = (loaded: LoadedCourse[]) => {
     const errors = loaded
-      .filter((l) => l.error || l.sections.length === 0)
+      .filter((l) => l.error || l.bundles.length === 0)
       .map(
         (l) =>
-          `${l.input.subject} ${l.input.courseNumber}: ${l.error ?? "no sections found"}`,
+          `${l.input.subject} ${l.input.courseNumber}: ${
+            l.error ?? "no valid lecture/lab combinations found"
+          }`,
       );
 
     setLoadErrors(errors);
 
-    const valid = loaded.filter((l) => !l.error && l.sections.length > 0);
+    const valid = loaded.filter((l) => !l.error && l.bundles.length > 0);
+
     if (valid.length < 2) {
       setCombinations([]);
       setCourseLabels([]);
@@ -30,7 +33,10 @@ export default function ScheduleBuilder() {
     const labels = valid.map(
       (l) => `${l.input.subject} ${l.input.courseNumber}`,
     );
-    const sectionGroups = valid.map((l) => l.sections);
+
+    // 🔥 IMPORTANT CHANGE HERE
+    const sectionGroups = valid.map((l) => l.bundles);
+
     const combos = generateCombinations(sectionGroups);
 
     setCourseLabels(labels);
@@ -38,85 +44,74 @@ export default function ScheduleBuilder() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", py: { xs: 6, sm: 10 } }}>
-      <Container maxWidth="lg">
-        {/* Hero */}
-        <Box>
-          <Box
-            sx={{
-              display: "inline-block",
-              fontFamily: "'Space Mono', monospace",
-              fontSize: 11,
-              letterSpacing: 3,
-              color: "#7dd3fc",
-              textTransform: "uppercase",
-              mb: 2,
-              px: 2,
-              py: 0.5,
-              border: "1px solid rgba(125,211,252,0.2)",
-              borderRadius: 20,
-            }}
-          >
-            University of Victoria
-          </Box>
-          <Typography
-            variant="h1"
-            sx={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: { xs: 38, sm: 56 },
-              lineHeight: 1.1,
-              color: "text.primary",
-              mb: 1.5,
-            }}
-          >
-            Schedule{" "}
-            <Box
-              component="span"
-              sx={{ fontStyle: "italic", color: "#7dd3fc" }}
-            >
-              Builder
-            </Box>
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.disabled"
-            sx={{ maxWidth: 420, mx: "auto" }}
-          >
-            Add your courses and we'll find every conflict-free combination,
-            visualized on a weekly calendar.
-          </Typography>
-        </Box>
+    <Box sx={{ minHeight: "100vh", width: "100%" }}>
+      <Box sx={{ textAlign: "center" }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            mb: 1,
+            fontWeight: 500,
+          }}
+        >
+          University of Victoria
+        </Typography>
 
-        {/* Selector */}
-        <Box>
-          <CourseSelector onResults={handleResults} />
-        </Box>
+        <Typography
+          sx={{
+            fontSize: { xs: 34, sm: 48 },
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            color: "text.primary",
+            mb: 1,
+          }}
+        >
+          Schedule Builder
+        </Typography>
 
-        {/* Load errors */}
-        {loadErrors.map((e) => (
-          <Alert
-            key={e}
-            severity="warning"
-            sx={{
-              mb: 2,
-              background: "rgba(245,158,11,0.08)",
-              border: "1px solid rgba(245,158,11,0.2)",
-              color: "#fcd34d",
-              "& .MuiAlert-icon": { color: "#f59e0b" },
-            }}
-          >
-            {e}
-          </Alert>
-        ))}
+        <Typography
+          sx={{
+            fontSize: 16,
+            color: "text.secondary",
+            maxWidth: 420,
+            mx: "auto",
+            lineHeight: 1.5,
+          }}
+        >
+          Add your courses and we’ll generate conflict-free schedules in a
+          simple weekly view.
+        </Typography>
+      </Box>
 
-        {/* Results */}
-        {combinations !== null && (
-          <CombinationList
-            combinations={combinations}
-            courseLabels={courseLabels}
-          />
-        )}
-      </Container>
+      {/* Selector */}
+      <Box>
+        <CourseSelector onResults={handleResults} />
+      </Box>
+
+      {/* Load errors */}
+      {loadErrors.map((e) => (
+        <Alert
+          key={e}
+          severity="warning"
+          sx={{
+            mb: 2,
+            background: "rgba(245,158,11,0.08)",
+            border: "1px solid rgba(245,158,11,0.2)",
+            color: "#fcd34d",
+            "& .MuiAlert-icon": { color: "#f59e0b" },
+          }}
+        >
+          {e}
+        </Alert>
+      ))}
+
+      {/* Results */}
+      {combinations !== null && (
+        <CombinationList
+          combinations={combinations}
+          courseLabels={courseLabels}
+        />
+      )}
     </Box>
   );
 }
