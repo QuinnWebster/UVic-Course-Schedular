@@ -2,13 +2,19 @@ import { useState } from "react";
 import { Alert, Box, Typography } from "@mui/material";
 import CourseSelector from "../components/CourseSelector";
 import CombinationList from "../components/CombinationList";
-import type { Combination, LoadedCourse } from "../types/schedule";
+import ScheduleFiltersPanel from "../components/ScheduleFiltersPanel";
+import type {
+  Combination,
+  LoadedCourse,
+  ScheduleFilters,
+} from "../types/schedule";
 import { generateCombinations } from "../utils/conflictChecker";
 
 export default function ScheduleBuilder() {
   const [combinations, setCombinations] = useState<Combination[] | null>(null);
   const [courseLabels, setCourseLabels] = useState<string[]>([]);
   const [loadErrors, setLoadErrors] = useState<string[]>([]);
+  const [filters, setFilters] = useState<ScheduleFilters>({});
 
   const handleResults = (loaded: LoadedCourse[]) => {
     const errors = loaded
@@ -24,7 +30,7 @@ export default function ScheduleBuilder() {
 
     const valid = loaded.filter((l) => !l.error && l.bundles.length > 0);
 
-    if (valid.length < 2) {
+    if (valid.length < 1) {
       setCombinations([]);
       setCourseLabels([]);
       return;
@@ -34,10 +40,9 @@ export default function ScheduleBuilder() {
       (l) => `${l.input.subject} ${l.input.courseNumber}`,
     );
 
-    // 🔥 IMPORTANT CHANGE HERE
     const sectionGroups = valid.map((l) => l.bundles);
 
-    const combos = generateCombinations(sectionGroups);
+    const combos = generateCombinations(sectionGroups, filters);
 
     setCourseLabels(labels);
     setCombinations(combos);
@@ -87,6 +92,8 @@ export default function ScheduleBuilder() {
       <Box>
         <CourseSelector onResults={handleResults} />
       </Box>
+
+      <ScheduleFiltersPanel filters={filters} setFilters={setFilters} />
 
       {/* Load errors */}
       {loadErrors.map((e) => (

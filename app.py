@@ -21,17 +21,17 @@ def fetch_sections(subject: str, course_number: str, term: str):
     session.headers.update(HEADERS)
     session_id = str(int(time.time()))
 
-    # Step 1: Init session / get JSESSIONID
+    # Open the course search page and establish the session
     session.get(f"{BASE_URL}/classSearch/classSearch", timeout=10)
 
-    # Step 2: Reset form state
+    # Reset form state
     session.post(
         f"{BASE_URL}/classSearch/resetDataForm",
         timeout=10,
         headers={"Referer": f"{BASE_URL}/classSearch/classSearch"},
     )
 
-    # Step 3: Register term
+    # Register term
     session.get(
         f"{BASE_URL}/term/search",
         params={"mode": "search"},
@@ -53,7 +53,7 @@ def fetch_sections(subject: str, course_number: str, term: str):
         },
     )
 
-    # Step 4: Fetch results
+    # Actually search for the course
     resp = session.get(
         f"{BASE_URL}/searchResults/searchResults",
         params={
@@ -79,8 +79,8 @@ def fetch_sections(subject: str, course_number: str, term: str):
     return resp.json()
 
 
+# Transforms data shape
 def parse_section(s: dict) -> dict:
-    """Flatten a raw Banner section into a clean dict."""
     # Build schedule
     schedule = []
     for m in s.get("meetingsFaculty") or []:
@@ -174,14 +174,17 @@ def get_courses():
 
     sections = [parse_section(s) for s in (raw.get("data") or [])]
 
-    print("the data is", sections)
-    return jsonify({
+
+
+    parsedObj = jsonify({
         "subject":      subject,
         "courseNumber": course_number,
         "term":         term,
         "totalCount":   len(sections),
         "sections":     sections,
     })
+
+    return parsedObj
 
 
 @app.route("/api/health", methods=["GET"])
@@ -190,5 +193,5 @@ def health():
 
 
 if __name__ == "__main__":
-    print("🚀 UVic Course API running at http://localhost:5000")
+    print("UVic Course API running at http://localhost:5000")
     app.run(debug=True, port=5000)

@@ -1,4 +1,5 @@
 import type { Section } from "../types/courseTypes";
+import type { ScheduleFilters } from "../types/schedule";
 import type { CalendarBlock, Combination } from "../types/schedule";
 
 // ── Time helpers ─────────────────────────────────────────────────────────────
@@ -55,21 +56,23 @@ function sectionsConflict(a: Section, b: Section): boolean {
   return blocksOverlap(getTimeBlocks(a), getTimeBlocks(b));
 }
 
-// ── Combination generation ────────────────────────────────────────────────────
-// Groups sections by their linkIdentifier (A1, B1 etc.) within a course,
-// then picks one group per course and checks conflicts.
+function sectionPassesFilters(
+  section: Section,
+  filters?: ScheduleFilters,
+): boolean {
+  // if (!filters) return true;
 
-// function groupByLink(sections: Section[]): Section[][] {
-//   // Lectures are linked with labs/tutorials via linkIdentifier.
-//   // Group by linkIdentifier so we pick a coherent set.
-//   const map = new Map<string, Section[]>();
-//   for (const s of sections) {
-//     const key = s.linkIdentifier ?? s.sequenceNumber ?? s.crn;
-//     if (!map.has(key)) map.set(key, []);
-//     map.get(key)!.push(s);
-//   }
-//   return Array.from(map.values());
-// }
+  const blocks = getTimeBlocks(section);
+
+  console.log("The blocks are ", blocks);
+  console.log("The filters are ", filters);
+
+  return true;
+
+  // for (const block of blocks){
+
+  // }
+}
 
 let comboCounter = 0;
 export function buildCourseBundles(sections: Section[]): Section[][] {
@@ -98,6 +101,7 @@ export function buildCourseBundles(sections: Section[]): Section[][] {
 
 export function generateCombinations(
   courseBundles: Section[][][],
+  filters?: ScheduleFilters,
 ): Combination[] {
   const results: Combination[] = [];
 
@@ -105,6 +109,14 @@ export function generateCombinations(
     if (courseIdx === courseBundles.length) {
       // flatten bundles → sections for conflict checking
       const flatSections = chosen.flat();
+
+      const passesFilters = flatSections.every((section) =>
+        sectionPassesFilters(section, filters),
+      );
+
+      if (!passesFilters) {
+        return;
+      }
 
       let conflict = false;
       for (let i = 0; i < flatSections.length && !conflict; i++) {

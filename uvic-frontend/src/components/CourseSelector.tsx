@@ -86,10 +86,10 @@ export default function CourseSelector({ onResults }: CourseSelectorProps) {
       setError("Add at least one course.");
       return;
     }
-    if (valid.length < 2) {
-      setError("Add at least 2 courses to build a schedule.");
-      return;
-    }
+    // if (valid.length < 2) {
+    //   setError("Add at least 2 courses to build a schedule.");
+    //   return;
+    // }
 
     setError("");
     setLoading(true);
@@ -235,7 +235,6 @@ export default function CourseSelector({ onResults }: CourseSelectorProps) {
         </Alert>
       )}
 
-      {/* CTA */}
       <Button
         variant="contained"
         fullWidth

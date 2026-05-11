@@ -29,3 +29,17 @@ export interface CalendarBlock {
   endMinutes: number;
   color: string;
 }
+
+export interface ScheduleFilters {
+  noClassesOnDays?: number[]; // [0, 4] => Monday + Friday
+
+  earliestTime?: {
+    days: number[] | "all";
+    time: number; // minutes
+  };
+
+  latestTime?: {
+    days: number[] | "all";
+    time: number; // minutes
+  };
+}
